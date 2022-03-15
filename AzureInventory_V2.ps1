@@ -10,10 +10,10 @@ CSV files will be created for individual services (Virtual Machines, NSG rules, 
 function Invoke-GetAzureInventoryFunction{
     
     # Sign into Azure Portal
-    login-azurermaccount
+    Login-AzAccount
 
     # Fetching subscription list
-    $subscription_list = get-azurermsubscription
+    $subscription_list = Get-AzSubscription
 
     # Fetch current working directory 
     $working_directory = "c:\AzureInventory"
@@ -46,7 +46,6 @@ function Invoke-GetAzureInventoryFunction{
         }
         
     }
-
     #>
 }
 
@@ -59,7 +58,7 @@ Param(
 )
 
 # Selecting the subscription
-Select-AzureRmSubscription -Subscription $subscription_id
+Select-AzSubscription -Subscription $subscription_id
 
 
 
@@ -68,22 +67,22 @@ $path_to_store_inventory_csv_files = "c:\AzureInventory\" + $subscription_id
 
 
 # Fetch the Virtual Machines from the subscription
-$azureVMDetails = get-azurermvm
+$azureVMDetails = Get-AzVM
 
 # Fetch the NIC details from the subscription
-$azureNICDetails = Get-AzureRmNetworkInterface
+$azureNICDetails = Get-AzNetworkInterface
 
 # Fetch the Storage Accounts from the subscription
-$azureStorageAccountDetails = Get-AzureRmStorageAccount
+$azureStorageAccountDetails = Get-AzStorageAccount
 
 # Fetch the Virtual Networks from the subscription
-$azureVirtualNetworkDetails = Get-AzureRmVirtualNetwork
+$azureVirtualNetworkDetails = Get-AzVirtualNetwork
 
 # Fetch the NSG rules from the subscription
-$azureNSGDetails = Get-AzureRmNetworkSecurityGroup
+$azureNSGDetails = Get-AzNetworkSecurityGroup
 
 # Fetch the Azure load balancer details
-$AzureLBList = Get-AzureRmLoadBalancer
+$AzureLBList = Get-AzLoadBalancer
 
 # Create a new directory with the subscription name
 new-item $path_to_store_inventory_csv_files -ItemType Directory -Force
@@ -105,7 +104,7 @@ Set-Location -Path $path_to_store_inventory_csv_files
         foreach($azureVMDetails_Iterator in $azureVMDetails){
         
         # Fetching the satus
-        $vm_status = get-azurermvm -ResourceGroupName $azureVMDetails_Iterator.resourcegroupname -name $azureVMDetails_Iterator.name -Status
+        $vm_status = Get-AzVM -ResourceGroupName $azureVMDetails_Iterator.resourcegroupname -name $azureVMDetails_Iterator.name -Status
 
         #Fetching the private IP
         foreach($azureNICDetails_iterator in $azureNICDetails){
@@ -123,7 +122,6 @@ Set-Location -Path $path_to_store_inventory_csv_files
             $data_disk_name_list = "No Data Disk Attached"
             #write-host $data_disk_name_list
         }elseif($data_disks.Count -ge 1) {
-
         #>
             foreach ($data_disks_iterator in $data_disks) {
             $data_disk_name_list_temp = $data_disk_name_list + "; " +$data_disks_iterator.name 
